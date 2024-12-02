@@ -10,7 +10,7 @@ lineToPair line =
 
 readFileToSortedLists :: IO ([Int], [Int])
 readFileToSortedLists = do
-    content <- readFile "./q1input.txt"
+    content <- readFile "./input.txt"
     let linesOfFile = lines content
     let leftList = [fst $ lineToPair a | a <- linesOfFile ]
     let rightList = [snd $ lineToPair a | a <- linesOfFile ]
