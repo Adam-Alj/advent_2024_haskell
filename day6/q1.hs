@@ -6,8 +6,6 @@ getCharAtCoords :: (Int, Int) -> [String] -> Char
 getCharAtCoords (x,y) guardMap =
     head (drop x (head (drop y guardMap)))
 
-
-
 findInitialGuardXLocation :: String -> Int
 findInitialGuardXLocation s =
     length (
@@ -53,22 +51,24 @@ getNextCoords direction (x,y) =
         '>' -> (x+1, y)
         '<' -> (x-1, y)
 
-traceGuardPath :: [String] -> (Int, Int) -> Char -> Int -> [(Int, Int)] -> Int
-traceGuardPath guardMap (x, y) direction totalSteps visited = do
+-- Craziness
+traceGuardPath :: [String] -> (Int, Int) -> Char -> Int -> [(Int, Int)] -> Int -> (Int,Int)
+traceGuardPath guardMap (x, y) direction totalSteps visited totalPathCrossings = do
     let nextChar = lookAheadChar guardMap (x,y) direction
     let unvisited = (x,y) `notElem` visited
+    let newTotalCrossings = if not unvisited then totalPathCrossings + 1 else totalPathCrossings
     let newVisited = if unvisited then (x,y):visited else visited
     if nextChar == '_'
-        then totalSteps+1
+        then (totalSteps+1, totalPathCrossings)
         else if nextChar == '#'
-            then traceGuardPath guardMap (x,y) (getNextGuardDirection direction) (if unvisited then totalSteps + 1 else totalSteps) newVisited
-        else traceGuardPath guardMap (getNextCoords direction (x,y)) direction (if unvisited then totalSteps + 1 else totalSteps) newVisited
+            then traceGuardPath guardMap (x,y) (getNextGuardDirection direction) (if unvisited then totalSteps + 1 else totalSteps) newVisited (newTotalCrossings-1)
+        else traceGuardPath guardMap (getNextCoords direction (x,y)) direction (if unvisited then totalSteps + 1 else totalSteps) newVisited newTotalCrossings
 
 main :: IO ()
 main = do
-    inputFile <- readFile "input.txt"
+    inputFile <- readFile "example1.txt"
     let guardMap = lines inputFile
     let initialGuardLocation = findInitialGuardLocation guardMap 0
-    print $ traceGuardPath guardMap initialGuardLocation (getCharAtCoords initialGuardLocation guardMap) 0 []
+    print $ traceGuardPath guardMap initialGuardLocation (getCharAtCoords initialGuardLocation guardMap) 0 [] 0
 
 -- works!!!!
